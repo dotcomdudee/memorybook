@@ -120,4 +120,4 @@ MIT — do whatever you want with it.
 
 ---
 
-Built with ✨ by Poetry for @dotcomdudee and OpenClaw users.
+Built with ✨ for OpenClaw users.
