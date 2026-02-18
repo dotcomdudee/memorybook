@@ -1,6 +1,6 @@
 # Memory Book ✨
 
-![Memory Book](https://zight.io/s/7475847013439296550366720.png?x=VS91QTB)
+![Memory Book](https://zight.io/s/056809076816481890544550503799168.png?x=2M687EU)
 
 A beautiful web interface for browsing, searching, and editing your [OpenClaw](https://github.com/openclaw/openclaw) agent's memory files.
 
