@@ -4,7 +4,7 @@ A beautiful web interface for browsing, searching, and editing your [OpenClaw](h
 
 ![Memory Book](https://img.shields.io/badge/OpenClaw-MemoryBook-8B5CF6?style=flat-square) ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-![MemoryBook](https://zight.io/s/28402840472879254023629733568405046370.png?x=H2BK7O1)
+![MemoryBook](https://zight.io/s/4356975072949578960834132472582588521386555809.png?x=0ELM6KX)
 
 ## What is this?
 

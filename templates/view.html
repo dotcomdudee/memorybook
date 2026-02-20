@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% if display %}{{ display }} — {% endif %}Memory Book</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/png" href="/static/brain.png">
-  <link rel="apple-touch-icon" href="/static/brain.png">
+  <link rel="icon" type="image/svg+xml" href="/static/PoetrySVG.svg">
+  <link rel="apple-touch-icon" href="/static/PoetrySVG.svg">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fragment+Mono&display=swap');
 
@@ -18,8 +18,8 @@
       --white-faint: rgba(240, 236, 228, 0.08);
       --white-ghost: rgba(240, 236, 228, 0.03);
       --black: #0a0a09;
-      --accent: rgba(147, 130, 220, 0.8);
-      --accent-dim: rgba(147, 130, 220, 0.15);
+      --accent: rgba(254, 111, 94, 0.8);
+      --accent-dim: rgba(254, 111, 94, 0.15);
       --green: rgba(105, 219, 124, 0.7);
       --green-dim: rgba(105, 219, 124, 0.1);
     }
@@ -149,8 +149,8 @@
     }
 
     .search-input:focus {
-      border-color: rgba(147, 130, 220, 0.3);
-      box-shadow: 0 0 0 3px rgba(147, 130, 220, 0.08);
+      border-color: rgba(254, 111, 94, 0.3);
+      box-shadow: 0 0 0 3px rgba(254, 111, 94, 0.08);
     }
 
     .search-icon {
@@ -182,7 +182,7 @@
     }
 
     .search-result:hover {
-      border-color: rgba(147, 130, 220, 0.3);
+      border-color: rgba(254, 111, 94, 0.3);
       background: var(--accent-dim);
     }
 
@@ -208,7 +208,7 @@
     }
 
     .search-result-match mark {
-      background: rgba(147, 130, 220, 0.25);
+      background: rgba(254, 111, 94, 0.25);
       color: var(--white);
       border-radius: 2px;
       padding: 0 2px;
@@ -243,7 +243,7 @@
     }
 
     .inline-search input:focus {
-      border-color: rgba(147, 130, 220, 0.3);
+      border-color: rgba(254, 111, 94, 0.3);
     }
 
     .inline-search .search-icon {
@@ -328,17 +328,14 @@
 
     .btn.active {
       background: var(--accent-dim);
-      border-color: rgba(147, 130, 220, 0.3);
+      border-color: rgba(254, 111, 94, 0.3);
       color: var(--accent);
     }
 
     /* TOC */
     .toc {
       margin-bottom: 30px;
-      padding: 18px 22px;
-      background: var(--white-ghost);
-      border: 1px solid var(--white-faint);
-      border-radius: 12px;
+      padding: 0;
       animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
       animation-delay: 0.1s;
     }
@@ -353,16 +350,18 @@
     }
 
     .toc a {
-      display: block;
-      padding: 4px 0;
+      display: list-item;
+      list-style: disc;
+      margin-left: 18px;
+      padding: 3px 0;
       font-size: 13px;
       font-weight: 300;
-      color: rgba(240, 236, 228, 0.5);
+      color: var(--accent);
       text-decoration: none;
-      transition: color 0.2s;
+      transition: opacity 0.2s;
     }
 
-    .toc a:hover { color: var(--accent); }
+    .toc a:hover { opacity: 0.7; }
 
     /* Sections */
     .sections {
@@ -371,15 +370,11 @@
     }
 
     .section-card {
-      background: var(--white-ghost);
-      border: 1px solid var(--white-faint);
-      border-radius: 14px;
-      padding: 24px 28px;
-      margin-bottom: 12px;
-      transition: all 0.2s;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(240, 236, 228, 0.06);
     }
 
-    .section-card:hover { border-color: rgba(240, 236, 228, 0.1); }
+    .section-card:last-child { border-bottom: none; }
 
     .section-card h2 {
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -393,9 +388,10 @@
     .section-card .content {
       font-size: 14px;
       font-weight: 300;
-      line-height: 1.75;
       color: rgba(240, 236, 228, 0.65);
     }
+    .section-card .content > *:last-child { margin-bottom: 0; padding-bottom: 0; }
+    .section-card .content > br:last-child { display: none; }
 
     .section-card .content strong { color: rgba(240, 236, 228, 0.85); font-weight: 500; }
     .section-card .content code {
@@ -431,7 +427,13 @@
       transition: border-color 0.3s;
     }
 
-    .editor:focus { border-color: rgba(147, 130, 220, 0.3); }
+    .editor:focus { border-color: rgba(254, 111, 94, 0.3); }
+
+    .editor::-webkit-scrollbar { width: 8px; }
+    .editor::-webkit-scrollbar-track { background: transparent; }
+    .editor::-webkit-scrollbar-thumb { background: rgba(254, 111, 94, 0.3); border-radius: 4px; }
+    .editor::-webkit-scrollbar-thumb:hover { background: rgba(254, 111, 94, 0.5); }
+    .editor::-webkit-scrollbar-corner { background: transparent; }
 
     /* Animations */
     @keyframes fadeUp {
