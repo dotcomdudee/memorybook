@@ -27,7 +27,8 @@
     html { background: var(--black); }
 
     body {
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
       background: var(--black);
       font-family: 'DM Sans', sans-serif;
       color: var(--white);
@@ -37,18 +38,24 @@
       max-width: 1200px;
       margin: 0 auto;
       display: flex;
-      min-height: 100vh;
+      height: 100vh;
     }
 
     /* Sidebar */
     .sidebar {
       width: 260px;
       min-width: 260px;
-      min-height: 100vh;
+      height: 100vh;
       border-right: 1px solid var(--white-faint);
       padding: 24px 0;
       overflow-y: auto;
     }
+
+    .sidebar::-webkit-scrollbar { width: 0; }
+    .main::-webkit-scrollbar { width: 6px; }
+    .main::-webkit-scrollbar-track { background: transparent; }
+    .main::-webkit-scrollbar-thumb { background: rgba(254, 111, 94, 0.2); border-radius: 3px; }
+    .main::-webkit-scrollbar-thumb:hover { background: rgba(254, 111, 94, 0.4); }
 
     .sidebar-logo {
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -103,6 +110,8 @@
     .main {
       flex: 1;
       padding: 32px clamp(20px, 4vw, 60px) 80px;
+      overflow-y: auto;
+      height: 100vh;
     }
 
     /* Landing state (no file selected) */
@@ -445,6 +454,28 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Jump to top */
+    .jump-top {
+      position: fixed;
+      bottom: 32px;
+      right: calc((100vw - 1200px) / 2 - 56px);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(254, 111, 94, 0.3);
+      background: rgba(254, 111, 94, 0.08);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, background 0.2s;
+    }
+    .jump-top.visible { opacity: 1; pointer-events: auto; }
+    .jump-top:hover { background: rgba(254, 111, 94, 0.2); }
+    .jump-top svg { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
     .mobile-back { display: none; margin-bottom: 16px; }
     .mobile-back a {
       font-family: 'Bricolage Grotesque', sans-serif;
@@ -667,5 +698,14 @@
     });
   </script>
 
+<div class="jump-top" id="jump-top" onclick="document.querySelector('.main').scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</div>
+<script>
+(function(){
+  var m = document.querySelector('.main');
+  if(m) m.addEventListener('scroll', function(){ document.getElementById('jump-top').classList.toggle('visible', m.scrollTop > 300); });
+})();
+</script>
 </body>
 </html>
