@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Memory Book — A beautiful web interface for OpenClaw memory files.
-https://github.com/openclaw/memorybook
+https://github.com/dotcomdudee/memorybook
 
 Browse, search, and edit your agent's memory markdown files
 with a clean dark glass UI.

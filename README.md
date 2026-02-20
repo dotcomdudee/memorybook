@@ -23,7 +23,7 @@ OpenClaw agents store memories as markdown files — daily notes in `memory/YYYY
 
 ```bash
 # Clone
-git clone https://github.com/openclaw/memorybook.git
+git clone https://github.com/dotcomdudee/memorybook.git
 cd memorybook
 
 # Install dependencies
