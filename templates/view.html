@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ display }} — Memory Book</title>
+  <title>{% if display %}{{ display }} — {% endif %}Memory Book</title>
   <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="/static/brain.png">
+  <link rel="apple-touch-icon" href="/static/brain.png">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fragment+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fragment+Mono&display=swap');
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -49,11 +51,12 @@
     }
 
     .sidebar-logo {
-      font-family: 'Instrument Serif', serif;
-      font-size: 32px;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 22px;
       font-weight: 400;
       padding: 0 20px 20px;
       text-align: center;
+      letter-spacing: -0.02em;
       border-bottom: 1px solid var(--white-faint);
       margin-bottom: 16px;
     }
@@ -102,19 +105,178 @@
       padding: 32px clamp(20px, 4vw, 60px) 80px;
     }
 
-    /* Mobile back */
-    .mobile-back {
-      display: none;
-      margin-bottom: 16px;
+    /* Landing state (no file selected) */
+    .landing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-    .mobile-back a {
-      font-family: 'Fragment Mono', monospace;
-      font-size: 12px;
-      color: var(--white-dim);
+
+    .landing-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: rgba(240, 236, 228, 0.3);
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .search-container {
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 14px 20px 14px 44px;
+      border-radius: 12px;
+      border: 1px solid var(--white-faint);
+      background: var(--white-ghost);
+      color: rgba(240, 236, 228, 0.8);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .search-input::placeholder {
+      color: rgba(240, 236, 228, 0.2);
+    }
+
+    .search-input:focus {
+      border-color: rgba(147, 130, 220, 0.3);
+      box-shadow: 0 0 0 3px rgba(147, 130, 220, 0.08);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(240, 236, 228, 0.2);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .search-results {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .search-result {
+      display: block;
+      padding: 14px 18px;
+      background: var(--white-ghost);
+      border: 1px solid var(--white-faint);
+      border-radius: 10px;
+      margin-bottom: 8px;
       text-decoration: none;
-      transition: color 0.2s;
+      transition: all 0.2s;
+      animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-    .mobile-back a:hover { color: var(--white); }
+
+    .search-result:hover {
+      border-color: rgba(147, 130, 220, 0.3);
+      background: var(--accent-dim);
+    }
+
+    .search-result-file {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .search-result-line {
+      font-size: 11px;
+      color: rgba(240, 236, 228, 0.25);
+      font-family: 'Bricolage Grotesque', sans-serif;
+    }
+
+    .search-result-match {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(240, 236, 228, 0.6);
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+
+    .search-result-match mark {
+      background: rgba(147, 130, 220, 0.25);
+      color: var(--white);
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    .search-empty {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(240, 236, 228, 0.2);
+      padding: 20px;
+    }
+
+    /* Inline search (when viewing a note) */
+    .inline-search {
+      position: relative;
+      width: 200px;
+    }
+
+    .inline-search input {
+      width: 100%;
+      padding: 7px 14px 7px 32px;
+      border-radius: 8px;
+      border: 1px solid var(--white-faint);
+      background: var(--white-ghost);
+      color: rgba(240, 236, 228, 0.7);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .inline-search input:focus {
+      border-color: rgba(147, 130, 220, 0.3);
+    }
+
+    .inline-search .search-icon {
+      left: 10px;
+      font-size: 13px;
+    }
+
+    .inline-search .inline-results {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 400px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #141413;
+      border: 1px solid var(--white-faint);
+      border-radius: 10px;
+      margin-top: 8px;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .inline-search .inline-results.open { display: block; }
+
+    .inline-search .inline-results .search-result {
+      border-radius: 0;
+      border: none;
+      border-bottom: 1px solid var(--white-faint);
+      margin: 0;
+    }
+
+    .inline-search .inline-results .search-result:last-child { border-bottom: none; }
 
     /* Header */
     .view-header {
@@ -126,7 +288,7 @@
     }
 
     .view-header h1 {
-      font-family: 'Instrument Serif', serif;
+      font-family: 'Bricolage Grotesque', sans-serif;
       font-weight: 400;
       font-size: clamp(28px, 4vw, 42px);
       letter-spacing: -0.03em;
@@ -170,7 +332,7 @@
       color: var(--accent);
     }
 
-    /* Table of contents */
+    /* TOC */
     .toc {
       margin-bottom: 30px;
       padding: 18px 22px;
@@ -202,7 +364,7 @@
 
     .toc a:hover { color: var(--accent); }
 
-    /* Sections (read mode) */
+    /* Sections */
     .sections {
       animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
       animation-delay: 0.15s;
@@ -217,12 +379,10 @@
       transition: all 0.2s;
     }
 
-    .section-card:hover {
-      border-color: rgba(240, 236, 228, 0.1);
-    }
+    .section-card:hover { border-color: rgba(240, 236, 228, 0.1); }
 
     .section-card h2 {
-      font-family: 'Instrument Serif', serif;
+      font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 22px;
       font-weight: 400;
       letter-spacing: -0.02em;
@@ -237,41 +397,22 @@
       color: rgba(240, 236, 228, 0.65);
     }
 
-    .section-card .content strong {
-      color: rgba(240, 236, 228, 0.85);
-      font-weight: 500;
-    }
-
+    .section-card .content strong { color: rgba(240, 236, 228, 0.85); font-weight: 500; }
     .section-card .content code {
-      font-family: 'Fragment Mono', monospace;
+      font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 12px;
       background: var(--white-faint);
       padding: 2px 6px;
       border-radius: 4px;
       color: var(--accent);
     }
-
-    .section-card .content ul, .section-card .content ol {
-      padding-left: 20px;
-    }
-
-    .section-card .content li {
-      margin-bottom: 4px;
-    }
-
-    .section-card .content a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
+    .section-card .content ul, .section-card .content ol { padding-left: 20px; }
+    .section-card .content li { margin-bottom: 4px; }
+    .section-card .content a { color: var(--accent); text-decoration: none; }
     .section-card .content a:hover { text-decoration: underline; }
 
     /* Editor */
-    .editor-wrap {
-      display: none;
-      animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
+    .editor-wrap { display: none; animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
     .editor-wrap.active { display: block; }
 
     .editor {
@@ -282,7 +423,7 @@
       border: 1px solid var(--white-faint);
       border-radius: 14px;
       color: rgba(240, 236, 228, 0.8);
-      font-family: 'Fragment Mono', monospace;
+      font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 13px;
       line-height: 1.75;
       resize: vertical;
@@ -290,27 +431,36 @@
       transition: border-color 0.3s;
     }
 
-    .editor:focus {
-      border-color: rgba(147, 130, 220, 0.3);
-    }
+    .editor:focus { border-color: rgba(147, 130, 220, 0.3); }
 
     /* Animations */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(28px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes fadeDown {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Mobile */
+    .mobile-back { display: none; margin-bottom: 16px; }
+    .mobile-back a {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 12px;
+      color: var(--white-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .mobile-back a:hover { color: var(--white); }
+
     @media (max-width: 768px) {
-      .sidebar { display: none; }
       .mobile-back { display: block; }
+      .sidebar { display: none; }
       .main { padding: 20px 14px 60px; }
       .view-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .inline-search input:focus { width: 200px; }
+      .inline-search .inline-results { width: 300px; }
+      .search-container { max-width: 100%; }
     }
   </style>
 </head>
@@ -318,7 +468,7 @@
 
   <div class="wrapper">
   <div class="sidebar">
-    <div class="sidebar-logo"><a href="/">memory <span>book</span></a></div>
+    <div class="sidebar-logo"><a href="/">Memory<span>Book</span></a></div>
 
     {% set core = files | selectattr("type", "equalto", "core") | list %}
     {% set daily = files | selectattr("type", "equalto", "daily") | list %}
@@ -326,27 +476,47 @@
     {% if core %}
     <div class="sidebar-section">Core</div>
     {% for f in core %}
-    <a class="sidebar-item {{ 'active' if f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}</a>
+    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}<br><span style="font-family:'Fragment Mono',monospace;font-size:10px;color:rgba(240,236,228,0.18);">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
     {% endfor %}
     {% endif %}
 
     {% if daily %}
     <div class="sidebar-section">Daily</div>
     {% for f in daily %}
-    <a class="sidebar-item {{ 'active' if f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}</a>
+    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}<br><span style="font-family:'Fragment Mono',monospace;font-size:10px;color:rgba(240,236,228,0.18);">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
     {% endfor %}
     {% endif %}
   </div>
 
   <div class="main">
-    <div class="mobile-back"><a href="/">← back to files</a></div>
+    {% if not sections %}
+    <!-- Landing: no file selected -->
+    <div class="landing">
+      <div class="landing-title">Select a memory to read</div>
+      <div class="search-container">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" type="text" id="landing-search" placeholder="Search memories..." autocomplete="off" autofocus>
+      </div>
+      <div class="search-results" id="landing-results"></div>
+    </div>
+
+    {% else %}
+    <!-- Viewing a file -->
+    <div class="mobile-back"><a href="/">← back</a></div>
     <div class="view-header">
       <h1>{{ display }}</h1>
       <div class="view-actions">
+        <div class="inline-search">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="inline-search" placeholder="Search..." autocomplete="off">
+        </div>
         <span class="save-status" id="save-status"></span>
         <button class="btn" id="toggle-edit" onclick="toggleEdit()">Edit</button>
       </div>
     </div>
+
+    <!-- Inline search results (replaces note content while searching) -->
+    <div class="search-results" id="view-search-results" style="display:none;max-width:100%;"></div>
 
     <!-- Read Mode -->
     <div id="read-mode">
@@ -377,13 +547,76 @@
     <div class="editor-wrap" id="edit-mode">
       <textarea class="editor" id="editor" spellcheck="false">{{ content }}</textarea>
     </div>
+    {% endif %}
   </div>
   </div>
 
   <script>
+    // === Search ===
+    let searchTimeout;
+
+    async function doSearch(query, resultsEl, isInline) {
+      if (!query || query.length < 2) {
+        resultsEl.innerHTML = '';
+        if (isInline) resultsEl.classList.remove('open');
+        return;
+      }
+      try {
+        const r = await fetch('/api/search?q=' + encodeURIComponent(query));
+        const data = await r.json();
+        if (!data.results.length) {
+          resultsEl.innerHTML = '<div class="search-empty">No results found</div>';
+          if (isInline) resultsEl.classList.add('open');
+          return;
+        }
+        const q = query.toLowerCase();
+        resultsEl.innerHTML = data.results.slice(0, 15).map((r, i) => {
+          const match = r.match.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>');
+          return '<a class="search-result" href="/view/' + r.file + '#line-' + r.line + '" style="animation-delay:' + (i * 0.03) + 's">'
+            + '<div class="search-result-file">' + r.file_display + ' <span class="search-result-line">line ' + r.line + '</span></div>'
+            + '<div class="search-result-match">' + match + '</div>'
+            + '</a>';
+        }).join('');
+        if (isInline) resultsEl.classList.add('open');
+      } catch(e) {}
+    }
+
+    // Landing search
+    const landingInput = document.getElementById('landing-search');
+    const landingResults = document.getElementById('landing-results');
+    if (landingInput) {
+      landingInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        const q = landingInput.value.trim();
+        document.querySelector('.landing-title').style.display = q.length > 0 ? 'none' : '';
+        searchTimeout = setTimeout(() => doSearch(q, landingResults, false), 250);
+      });
+    }
+
+    // Inline search (when viewing a note)
+    const inlineInput = document.getElementById('inline-search');
+    const viewResults = document.getElementById('view-search-results');
+    const readMode = document.getElementById('read-mode');
+    if (inlineInput) {
+      inlineInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        const q = inlineInput.value.trim();
+        if (q.length < 2) {
+          viewResults.style.display = 'none';
+          viewResults.innerHTML = '';
+          if (readMode) readMode.style.display = '';
+          return;
+        }
+        if (readMode) readMode.style.display = 'none';
+        viewResults.style.display = '';
+        searchTimeout = setTimeout(() => doSearch(q, viewResults, false), 250);
+      });
+    }
+
+    // === Editor ===
     let editMode = false;
-    let saveTimeout;
-    const filePath = "{{ files | selectattr('name', 'equalto', filename) | map(attribute='path') | first }}";
+    let saveTimeout2;
+    const filePath = "{{ files | selectattr('name', 'equalto', filename) | map(attribute='path') | first if filename else '' }}";
 
     function toggleEdit() {
       editMode = !editMode;
@@ -391,49 +624,43 @@
       document.getElementById('edit-mode').classList.toggle('active', editMode);
       document.getElementById('toggle-edit').classList.toggle('active', editMode);
       document.getElementById('toggle-edit').textContent = editMode ? 'Reading' : 'Edit';
-
-      if (editMode) {
-        document.getElementById('editor').focus();
-      }
+      if (editMode) document.getElementById('editor').focus();
     }
 
-    // Auto-save on edit
-    document.getElementById('editor').addEventListener('input', () => {
-      clearTimeout(saveTimeout);
-      document.getElementById('save-status').textContent = 'Unsaved...';
-      document.getElementById('save-status').classList.remove('saved');
-
-      saveTimeout = setTimeout(async () => {
-        const content = document.getElementById('editor').value;
-        try {
-          const res = await fetch('/api/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: filePath, content })
-          });
-          if (res.ok) {
-            document.getElementById('save-status').textContent = '✓ Saved';
-            document.getElementById('save-status').classList.add('saved');
-            setTimeout(() => {
-              document.getElementById('save-status').textContent = '';
-            }, 3000);
+    const editorEl = document.getElementById('editor');
+    if (editorEl) {
+      editorEl.addEventListener('input', () => {
+        clearTimeout(saveTimeout2);
+        document.getElementById('save-status').textContent = 'Unsaved...';
+        document.getElementById('save-status').classList.remove('saved');
+        saveTimeout2 = setTimeout(async () => {
+          const content = editorEl.value;
+          try {
+            const res = await fetch('/api/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ path: filePath, content })
+            });
+            if (res.ok) {
+              document.getElementById('save-status').textContent = '✓ Saved';
+              document.getElementById('save-status').classList.add('saved');
+              setTimeout(() => { document.getElementById('save-status').textContent = ''; }, 3000);
+            }
+          } catch (e) {
+            document.getElementById('save-status').textContent = 'Save failed';
           }
-        } catch (e) {
-          document.getElementById('save-status').textContent = 'Save failed';
-        }
-      }, 1000);
-    });
+        }, 1000);
+      });
+    }
 
-    // Ctrl+E to toggle edit
     document.addEventListener('keydown', e => {
-      if (e.ctrlKey && e.key === 'e') {
+      if (e.ctrlKey && e.key === 'e') { e.preventDefault(); toggleEdit(); }
+      if (e.ctrlKey && e.key === 's' && editorEl) { e.preventDefault(); editorEl.dispatchEvent(new Event('input')); }
+      // / to focus search
+      if (e.key === '/' && !editMode && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
         e.preventDefault();
-        toggleEdit();
-      }
-      // Ctrl+S to force save
-      if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        document.getElementById('editor').dispatchEvent(new Event('input'));
+        const s = inlineInput || landingInput;
+        if (s) s.focus();
       }
     });
   </script>

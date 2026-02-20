@@ -1,30 +1,29 @@
-# Memory Book ✨
+# MemoryBook ✨
 
 A beautiful web interface for browsing, searching, and editing your [OpenClaw](https://github.com/openclaw/openclaw) agent's memory files.
 
-![Memory Book](https://img.shields.io/badge/OpenClaw-Memory%20Book-8B5CF6?style=flat-square) ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+![Memory Book](https://img.shields.io/badge/OpenClaw-MemoryBook-8B5CF6?style=flat-square) ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-![Memory Book](https://zight.io/s/056809076816481890544550503799168.png?x=2M687EU)
+![MemoryBook](https://zight.io/s/28402840472879254023629733568405046370.png?x=H2BK7O1)
 
 ## What is this?
 
-OpenClaw agents store memories as markdown files — daily notes in `memory/YYYY-MM-DD.md` and long-term memory in `MEMORY.md`. Memory Book gives you a gorgeous dark UI to browse, search, and edit these files.
+OpenClaw agents store memories as markdown files — daily notes in `memory/YYYY-MM-DD.md` and long-term memory in `MEMORY.md`. MemoryBook gives you a gorgeous dark UI to browse, search, and edit these files.
 
 ### Features
 
-- 📚 **File Grid** — All memory files as cards, split into Core and Daily
 - 🔍 **Live Search** — Instant search across all files with highlighted matches
 - 📖 **Section View** — Each `##` header rendered as its own glass card
 - ✏️ **Live Editing** — Auto-saves as you type (1s debounce)
-- 📁 **Sidebar Navigation** — Quick jump between files
-- ⌨️ **Keyboard Shortcuts** — `Ctrl+E` toggle edit, `Ctrl+S` force save
-- 🎨 **Beautiful UI** — Dark glass aesthetic with cascading animations
+- 📁 **Sidebar Navigation** — Quick jump between files with file size & line counts
+- ⌨️ **Keyboard Shortcuts** — `Ctrl+E` toggle edit, `Ctrl+S` force save, `/` to focus search
+- 🎨 **Beautiful UI** — Dark glass aesthetic with Bricolage Grotesque headings
 
 ## Quick Start
 
 ```bash
 # Clone
-git clone https://github.com/dotcomdudee/memorybook.git
+git clone https://github.com/openclaw/memorybook.git
 cd memorybook
 
 # Install dependencies
@@ -38,7 +37,7 @@ Open **http://localhost:5577** and you're in.
 
 ## Configuration
 
-Memory Book auto-detects your OpenClaw workspace at `~/.openclaw/workspace`. Override with environment variables:
+MemoryBook auto-detects your OpenClaw workspace at `~/.openclaw/workspace`. Override with environment variables:
 
 ```bash
 # Custom workspace path
@@ -58,7 +57,7 @@ For always-on access, create a systemd service:
 ```bash
 sudo tee /etc/systemd/system/memorybook.service > /dev/null << 'EOF'
 [Unit]
-Description=Memory Book — OpenClaw memory viewer
+Description=MemoryBook — OpenClaw memory viewer
 After=network.target
 
 [Service]
@@ -82,23 +81,24 @@ sudo systemctl enable --now memorybook
 ```
 memorybook/
 ├── app.py              # Flask application
-├── README.md           # This file
-├── LICENSE             # MIT License
+├── README.md
+├── LICENSE
+├── static/
+│   └── brain.png       # Favicon
 └── templates/
-    ├── index.html      # Home — file grid + search
-    └── view.html       # Viewer — sections + editor + sidebar
+    └── view.html       # Combined home + viewer template
 ```
 
 ## How It Works
 
-Memory Book reads markdown files from your OpenClaw workspace:
+MemoryBook reads markdown files from your OpenClaw workspace:
 
 | File | Type | Description |
 |------|------|-------------|
 | `MEMORY.md` | Core | Agent's long-term curated memory |
 | `memory/YYYY-MM-DD.md` | Daily | Daily notes and logs |
 
-Files are parsed by `##` headers into visual sections. The editor writes directly to the files — your agent picks up changes on its next read.
+The homepage shows a sidebar of all files with a central search bar. Click any file to view it — markdown is parsed by `##` headers into visual section cards. The editor writes directly to the files — your agent picks up changes on its next read.
 
 ## Security
 

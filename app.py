@@ -162,7 +162,7 @@ def search_files(query):
 @app.route("/")
 def index():
     files = get_all_files()
-    return render_template("index.html", files=files)
+    return render_template("view.html", files=files, filename=None, display=None, content=None, sections=None)
 
 
 @app.route("/view/<path:filename>")
