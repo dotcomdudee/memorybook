@@ -38,8 +38,8 @@ The old `index.html` (grid homepage) is still on disk but **unused** — can be 
 **Editor** — toggle with button or `Ctrl+E`. Auto-saves after 1 second of inactivity via `/api/save`. `Ctrl+S` force-saves.
 
 **Memory paths scanned:**
-- Daily notes: `/home/ashley/.openclaw/workspace/memory/*.md`
-- Core memory: `/home/ashley/.openclaw/workspace/MEMORY.md`
+- Daily notes: `/home/username/.openclaw/workspace/memory/*.md`
+- Core memory: `/home/username/.openclaw/workspace/MEMORY.md`
 - Configurable via `EXTRA_FILES` list in `app.py`
 
 ## File Structure
@@ -82,7 +82,7 @@ curl -fsSL https://memorybook.md/install.sh | sudo bash -s -- \
   --non-interactive \
   --memory-dir /path/to/memory \
   --port 10001 \
-  --user ashley
+  --user username
 ```
 
 ### Options
