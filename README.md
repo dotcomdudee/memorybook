@@ -1,123 +1,159 @@
 # MemoryBook ✨
 
-A beautiful web interface for browsing, searching, and editing your [OpenClaw](https://github.com/openclaw/openclaw) agent's memory files.
+A beautiful web interface for browsing, searching, and editing Poetry's memory files.
 
-![Memory Book](https://img.shields.io/badge/OpenClaw-MemoryBook-8B5CF6?style=flat-square) ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+## Overview
 
-![MemoryBook](https://zight.io/s/75977413226884678564763331400625450548827539.png?x=ESCKBFD)
+MemoryBook provides a clean, dark glass UI to interact with the markdown files that make up Poetry's memory system — daily notes, long-term memory, and workspace files.
 
-## What is this?
+## Architecture
 
-OpenClaw agents store memories as markdown files — daily notes in `memory/YYYY-MM-DD.md` and long-term memory in `MEMORY.md`. MemoryBook gives you a gorgeous dark UI to browse, search, and edit these files.
+- **Backend:** Python Flask (`app.py`)
+- **Frontend:** Vanilla HTML/CSS/JS (single unified template)
+- **Fonts:** Bricolage Grotesque (headings), DM Sans (body), Fragment Mono (code) — all from Google Fonts
+- **Port:** 10001
+- **Service:** `memorybook.service` (systemd)
+- **Host:** Poetry (10.10.1.21), LAN only
+- **Favicon:** `PoetrySVG.svg` (coral `#fe6f5e`)
 
-### Features
+## Routes
 
-- 🔍 **Live Search** — Instant search across all files with highlighted matches
-- 📖 **Section View** — Each `##` header rendered as its own glass card
-- ✏️ **Live Editing** — Auto-saves as you type (1s debounce)
-- 📁 **Sidebar Navigation** — Quick jump between files with file size & line counts
-- ⌨️ **Keyboard Shortcuts** — `Ctrl+E` toggle edit, `Ctrl+S` force save, `/` to focus search
-- 🎨 **Beautiful UI** — Dark glass aesthetic with Bricolage Grotesque headings
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page — sidebar with all files, centered "Select a memory to read" prompt, search bar |
+| `/view/<filename>` | View a specific file — sidebar, sections as glass cards, inline editor |
+| `/api/search?q=` | JSON search API — returns matches with context across all files |
+| `/api/save` | POST — save file content (restricted to allowed paths) |
 
-## Quick Start
+## How It Works
 
-```bash
-# Clone
-git clone https://github.com/dotcomdudee/memorybook.git
-cd memorybook
+**Single unified template (`view.html`)** handles both states:
+- **Landing state** (`/`): No file loaded. Shows sidebar with file list, centered prompt text, search bar. `filename`, `display`, `content`, `sections` are all `None`.
+- **Viewing state** (`/view/<filename>`): File loaded. Shows sidebar, section cards with table of contents, inline editor toggle.
 
-# Install dependencies
-pip install flask markupsafe
+The old `index.html` (grid homepage) is still on disk but **unused** — can be safely removed.
 
-# Run (auto-detects ~/.openclaw/workspace)
-python3 app.py
-```
+**Search** is live/inline — results appear as you type, highlights matches across all memory files. Works in both landing and viewing states. `/` key focuses search from anywhere.
 
-Open **http://localhost:5577** and you're in.
+**Editor** — toggle with button or `Ctrl+E`. Auto-saves after 1 second of inactivity via `/api/save`. `Ctrl+S` force-saves.
 
-## Configuration
-
-MemoryBook auto-detects your OpenClaw workspace at `~/.openclaw/workspace`. Override with environment variables:
-
-```bash
-# Custom workspace path
-MEMORYBOOK_WORKSPACE=/path/to/workspace python3 app.py
-
-# Custom port
-MEMORYBOOK_PORT=8080 python3 app.py
-
-# Bind to localhost only (more secure)
-MEMORYBOOK_HOST=127.0.0.1 python3 app.py
-```
-
-## Run as a Service
-
-For always-on access, create a systemd service:
-
-```bash
-sudo tee /etc/systemd/system/memorybook.service > /dev/null << 'EOF'
-[Unit]
-Description=MemoryBook — OpenClaw memory viewer
-After=network.target
-
-[Service]
-Type=simple
-User=YOUR_USER
-WorkingDirectory=/path/to/memorybook
-ExecStart=/usr/bin/python3 app.py
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable --now memorybook
-```
+**Memory paths scanned:**
+- Daily notes: `/home/ashley/.openclaw/workspace/memory/*.md`
+- Core memory: `/home/ashley/.openclaw/workspace/MEMORY.md`
+- Configurable via `EXTRA_FILES` list in `app.py`
 
 ## File Structure
 
 ```
 memorybook/
-├── app.py              # Flask application
-├── README.md
-├── LICENSE
+├── app.py              # Flask application (routes, markdown rendering, search, save)
+├── README.md           # This file
 ├── static/
-│   └── brain.png       # Favicon
+│   ├── PoetrySVG.svg   # Favicon (coral #fe6f5e)
+│   ├── brain.png       # Alt favicon (brain emoji)
+│   └── favicon.jpg     # Legacy favicon
 └── templates/
-    └── view.html       # Combined home + viewer template
+    ├── view.html       # Unified template (landing + file viewer + search + editor)
+    └── index.html      # OLD grid homepage — unused, safe to remove
 ```
 
-## How It Works
+## Installation
 
-MemoryBook reads markdown files from your OpenClaw workspace:
+### Quick Install
 
-| File | Type | Description |
-|------|------|-------------|
-| `MEMORY.md` | Core | Agent's long-term curated memory |
-| `memory/YYYY-MM-DD.md` | Daily | Daily notes and logs |
+```bash
+curl -fsSL https://memorybook.md/install.sh | sudo bash
+```
 
-The homepage shows a sidebar of all files with a central search bar. Click any file to view it — markdown is parsed by `##` headers into visual section cards. The editor writes directly to the files — your agent picks up changes on its next read.
+The interactive installer will walk you through each step:
 
-## Security
+1. **Preflight checks** — verifies Python 3.8+, git, pip3, systemd
+2. **Configuration** — prompts for memory directory, port, user, install path
+3. **Clone repository** — pulls from GitHub (or updates existing install)
+4. **Install dependencies** — creates a venv, installs Flask + markupsafe
+5. **Create systemd service** — sets up, enables, and starts the service
 
-- **LAN only by default** — binds to `0.0.0.0` but intended for local network use
-- **No authentication** — add a reverse proxy with auth if exposing beyond LAN
-- **Write safety** — only allows editing files in the memory directory and `MEMORY.md`
-- **No external dependencies** beyond Flask
+### Non-Interactive Install
 
-## Requirements
+Skip all prompts with `--non-interactive` (or `-y`):
 
-- Python 3.8+
-- Flask
-- MarkupSafe
-- An [OpenClaw](https://github.com/openclaw/openclaw) workspace with memory files
+```bash
+curl -fsSL https://memorybook.md/install.sh | sudo bash -s -- \
+  --non-interactive \
+  --memory-dir /path/to/memory \
+  --port 10001 \
+  --user ashley
+```
 
-## License
+### Options
 
-MIT — do whatever you want with it.
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--non-interactive`, `-y` | Yes to all prompts | off |
+| `--memory-dir PATH` | Directory containing your `.md` files | auto-detected |
+| `--port PORT` | Port to serve on | `10001` |
+| `--user USER` | System user to run as | current user |
+| `--install-dir PATH` | Where to install MemoryBook | `/opt/memorybook` |
+
+### What Gets Installed
+
+```
+/opt/memorybook/          # App files (cloned from GitHub)
+/opt/memorybook/venv/     # Python virtual environment
+/opt/memorybook/.env      # Configuration (memory dir, port, etc.)
+/etc/systemd/system/memorybook.service  # Systemd service
+```
+
+### Auto-Detection
+
+The installer automatically detects OpenClaw workspace paths:
+- `~/.openclaw/workspace/memory` → memory directory
+- `~/.openclaw/workspace` → workspace directory
+
+Works with any directory of `.md` files — OpenClaw is not required.
+
+### Updating
+
+Re-run the installer — it detects the existing installation and pulls the latest:
+
+```bash
+curl -fsSL https://memorybook.md/install.sh | sudo bash
+```
+
+Or manually:
+
+```bash
+cd /opt/memorybook && git pull && sudo systemctl restart memorybook
+```
+
+## Running
+
+```bash
+# Status / restart / stop / logs
+sudo systemctl status memorybook
+sudo systemctl restart memorybook
+sudo systemctl stop memorybook
+journalctl -u memorybook -f
+```
+
+⚠️ **Flask caches templates** — restart the service after any HTML/template changes.
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `/` | Focus search bar |
+| `Ctrl+E` | Toggle edit mode |
+| `Ctrl+S` | Force save |
+
+## Design Notes
+
+- Dark glass aesthetic with cascading animations
+- Logo: "MemoryBook" (no space), 22px Bricolage Grotesque, letter-spacing -0.02em
+- Logo click unloads current note → returns to landing/search state
+- "Select a memory to read" prompt: 18px, hides when typing in search
+- Section cards use `##` headers as boundaries
 
 ---
 
-Built with ✨ for OpenClaw users.
+Built by Poetry ✨ for Ash.

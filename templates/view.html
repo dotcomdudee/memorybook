@@ -109,7 +109,7 @@
     /* Main content */
     .main {
       flex: 1;
-      padding: 32px clamp(20px, 4vw, 60px) 80px;
+      padding: 12px clamp(20px, 4vw, 60px) 80px;
       overflow-y: auto;
       height: 100vh;
     }
@@ -593,7 +593,7 @@
 
     <!-- Read Mode -->
     <div id="read-mode">
-      {% if sections | length > 3 %}
+      {% if sections | length > 1 %}
       <div class="toc">
         <div class="toc-title">Sections</div>
         {% for s in sections %}
@@ -702,13 +702,32 @@
     let saveTimeout2;
     const filePath = "{{ files | selectattr('name', 'equalto', filename) | map(attribute='path') | first if filename else '' }}";
 
+    let _savePending = false;
+
     function toggleEdit() {
       editMode = !editMode;
-      document.getElementById('read-mode').style.display = editMode ? 'none' : 'block';
-      document.getElementById('edit-mode').classList.toggle('active', editMode);
-      document.getElementById('toggle-edit').classList.toggle('active', editMode);
-      document.getElementById('toggle-edit').textContent = editMode ? 'Close' : 'Edit';
-      if (editMode) document.getElementById('editor').focus();
+      if (!editMode) {
+        // Closing editor — save any pending changes then reload
+        const doReload = () => window.location.reload();
+        if (_savePending) {
+          // Force immediate save, then reload
+          clearTimeout(saveTimeout2);
+          const content = document.getElementById('editor').value;
+          fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: filePath, content })
+          }).then(doReload).catch(doReload);
+        } else {
+          doReload();
+        }
+        return;
+      }
+      document.getElementById('read-mode').style.display = 'none';
+      document.getElementById('edit-mode').classList.add('active');
+      document.getElementById('toggle-edit').classList.add('active');
+      document.getElementById('toggle-edit').textContent = 'Close';
+      document.getElementById('editor').focus();
     }
 
     const editorEl = document.getElementById('editor');
@@ -717,6 +736,7 @@
         clearTimeout(saveTimeout2);
         document.getElementById('save-status').textContent = 'Unsaved...';
         document.getElementById('save-status').classList.remove('saved');
+        _savePending = true;
         saveTimeout2 = setTimeout(async () => {
           const content = editorEl.value;
           try {
@@ -726,6 +746,7 @@
               body: JSON.stringify({ path: filePath, content })
             });
             if (res.ok) {
+              _savePending = false;
               document.getElementById('save-status').textContent = '✓ Saved';
               document.getElementById('save-status').classList.add('saved');
               setTimeout(() => { document.getElementById('save-status').textContent = ''; }, 3000);
