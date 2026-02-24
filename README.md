@@ -22,6 +22,14 @@ OpenClaw agents store memories as markdown files — daily notes in `memory/YYYY
 
 ## Install
 
+### From Cloned Repo
+
+```bash
+git clone https://github.com/dotcomdudee/memorybook.git
+cd memorybook
+sudo bash install.sh
+```
+
 One command:
 
 ```bash
@@ -49,7 +57,8 @@ curl -fsSL https://memorybook.md/install.sh | sudo bash -s -- \
 | `--user USER` | System user to run as | current user |
 | `--install-dir PATH` | Where to install | `/opt/memorybook` |
 
-### Manual Install
+
+### Manual (No Service)
 
 ```bash
 git clone https://github.com/dotcomdudee/memorybook.git
