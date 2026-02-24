@@ -22,6 +22,50 @@
       --accent-dim: rgba(254, 111, 94, 0.15);
       --green: rgba(105, 219, 124, 0.7);
       --green-dim: rgba(105, 219, 124, 0.1);
+      --scrollbar-thumb: rgba(254, 111, 94, 0.2);
+      --scrollbar-hover: rgba(254, 111, 94, 0.4);
+      --content-dim: rgba(240, 236, 228, 0.65);
+      --content-strong: rgba(240, 236, 228, 0.85);
+      --meta-dim: rgba(240, 236, 228, 0.18);
+      --section-line: rgba(240, 236, 228, 0.06);
+      --search-shadow: rgba(0,0,0,0.4);
+      --sidebar-item-dim: rgba(240, 236, 228, 0.4);
+      --sidebar-section-dim: rgba(240, 236, 228, 0.2);
+      --toc-title-dim: rgba(240, 236, 228, 0.25);
+      --landing-dim: rgba(240, 236, 228, 0.3);
+      --search-placeholder: rgba(240, 236, 228, 0.2);
+      --save-dim: rgba(240, 236, 228, 0.3);
+      --btn-text: rgba(240, 236, 228, 0.5);
+      --input-text: rgba(240, 236, 228, 0.7);
+      --input-text-strong: rgba(240, 236, 228, 0.8);
+    }
+
+    [data-theme="light"] {
+      --white: #2a1f14;
+      --white-dim: rgba(42, 31, 20, 0.55);
+      --white-faint: rgba(42, 31, 20, 0.1);
+      --white-ghost: rgba(42, 31, 20, 0.04);
+      --black: #f5f0e8;
+      --accent: rgba(210, 72, 54, 0.9);
+      --accent-dim: rgba(210, 72, 54, 0.1);
+      --green: rgba(46, 160, 67, 0.8);
+      --green-dim: rgba(46, 160, 67, 0.1);
+      --scrollbar-thumb: rgba(210, 72, 54, 0.2);
+      --scrollbar-hover: rgba(210, 72, 54, 0.4);
+      --content-dim: rgba(42, 31, 20, 0.65);
+      --content-strong: rgba(42, 31, 20, 0.85);
+      --meta-dim: rgba(42, 31, 20, 0.25);
+      --section-line: rgba(42, 31, 20, 0.08);
+      --search-shadow: rgba(0,0,0,0.12);
+      --sidebar-item-dim: rgba(42, 31, 20, 0.45);
+      --sidebar-section-dim: rgba(42, 31, 20, 0.35);
+      --toc-title-dim: rgba(42, 31, 20, 0.35);
+      --landing-dim: rgba(42, 31, 20, 0.4);
+      --search-placeholder: rgba(42, 31, 20, 0.3);
+      --save-dim: rgba(42, 31, 20, 0.35);
+      --btn-text: rgba(42, 31, 20, 0.5);
+      --input-text: rgba(42, 31, 20, 0.7);
+      --input-text-strong: rgba(42, 31, 20, 0.8);
     }
 
     html { background: var(--black); }
@@ -54,18 +98,21 @@
     .sidebar::-webkit-scrollbar { width: 0; }
     .main::-webkit-scrollbar { width: 6px; }
     .main::-webkit-scrollbar-track { background: transparent; }
-    .main::-webkit-scrollbar-thumb { background: rgba(254, 111, 94, 0.2); border-radius: 3px; }
-    .main::-webkit-scrollbar-thumb:hover { background: rgba(254, 111, 94, 0.4); }
+    .main::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+    .main::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
     .sidebar-logo {
       font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 22px;
       font-weight: 400;
       padding: 0 20px 20px;
-      text-align: center;
       letter-spacing: -0.02em;
       border-bottom: 1px solid var(--white-faint);
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     }
 
     .sidebar-logo a {
@@ -75,12 +122,36 @@
 
     .sidebar-logo a span { color: var(--accent); }
 
+    .theme-toggle {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sidebar-item-dim);
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover { color: var(--accent); }
+    .theme-toggle svg { width: 14px; height: 14px; }
+    .theme-toggle .icon-sun { display: none; }
+    [data-theme="light"] .theme-toggle .icon-moon { display: none; }
+    [data-theme="light"] .theme-toggle .icon-sun { display: block; }
+
+    .sidebar-item-meta {
+      font-family: 'Fragment Mono', monospace;
+      font-size: 10px;
+      color: var(--meta-dim);
+    }
+
     .sidebar-section {
       font-size: 10px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: rgba(240, 236, 228, 0.2);
+      color: var(--sidebar-section-dim);
       padding: 12px 20px 6px;
     }
 
@@ -89,7 +160,7 @@
       padding: 8px 20px;
       font-size: 13px;
       font-weight: 300;
-      color: rgba(240, 236, 228, 0.4);
+      color: var(--sidebar-item-dim);
       text-decoration: none;
       transition: all 0.2s;
       border-left: 2px solid transparent;
@@ -100,13 +171,13 @@
       user-select: none;
       transition: color 0.2s;
     }
-    .sidebar-month:hover { color: rgba(240, 236, 228, 0.4); }
+    .sidebar-month:hover { color: var(--sidebar-item-dim); }
     .month-chevron { float: right; display: inline-flex; align-items: center; }
     .month-chevron svg { transition: transform 0.2s ease; }
     .sidebar-month.collapsed .month-chevron svg { transform: rotate(-90deg); }
 
     .sidebar-item:hover {
-      color: rgba(240, 236, 228, 0.8);
+      color: var(--input-text-strong);
       background: var(--white-ghost);
     }
 
@@ -138,7 +209,7 @@
       font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 18px;
       font-weight: 400;
-      color: rgba(240, 236, 228, 0.3);
+      color: var(--landing-dim);
       margin-bottom: 24px;
       letter-spacing: -0.02em;
     }
@@ -155,7 +226,7 @@
       border-radius: 12px;
       border: 1px solid var(--white-faint);
       background: var(--white-ghost);
-      color: rgba(240, 236, 228, 0.8);
+      color: var(--input-text-strong);
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
       font-weight: 300;
@@ -164,7 +235,7 @@
     }
 
     .search-input::placeholder {
-      color: rgba(240, 236, 228, 0.2);
+      color: var(--search-placeholder);
     }
 
     .search-input:focus {
@@ -177,7 +248,7 @@
       left: 16px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(240, 236, 228, 0.2);
+      color: var(--search-placeholder);
       font-size: 16px;
       pointer-events: none;
     }
@@ -214,20 +285,20 @@
 
     .search-result-line {
       font-size: 11px;
-      color: rgba(240, 236, 228, 0.25);
+      color: var(--toc-title-dim);
       font-family: 'Bricolage Grotesque', sans-serif;
     }
 
     .search-result-match {
       font-size: 13px;
       font-weight: 300;
-      color: rgba(240, 236, 228, 0.6);
+      color: var(--content-dim);
       line-height: 1.5;
       margin-top: 4px;
     }
 
     .search-result-match mark {
-      background: rgba(254, 111, 94, 0.25);
+      background: var(--accent-dim);
       color: var(--white);
       border-radius: 2px;
       padding: 0 2px;
@@ -237,7 +308,7 @@
       text-align: center;
       font-size: 13px;
       font-weight: 300;
-      color: rgba(240, 236, 228, 0.2);
+      color: var(--search-placeholder);
       padding: 20px;
     }
 
@@ -253,7 +324,7 @@
       border-radius: 8px;
       border: 1px solid var(--white-faint);
       background: var(--white-ghost);
-      color: rgba(240, 236, 228, 0.7);
+      color: var(--input-text);
       font-family: 'DM Sans', sans-serif;
       font-size: 13px;
       font-weight: 300;
@@ -277,13 +348,13 @@
       width: 400px;
       max-height: 400px;
       overflow-y: auto;
-      background: #120D08;
+      background: var(--black);
       border: 1px solid var(--white-faint);
       border-radius: 10px;
       margin-top: 8px;
       z-index: 100;
       display: none;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 32px var(--search-shadow);
     }
 
     .inline-search .inline-results.open { display: block; }
@@ -320,7 +391,7 @@
     .view-actions .save-status {
       font-size: 12px;
       font-weight: 300;
-      color: rgba(240, 236, 228, 0.3);
+      color: var(--save-dim);
       transition: all 0.3s;
     }
 
@@ -336,13 +407,13 @@
       transition: all 0.2s;
       border: 1px solid var(--white-faint);
       background: var(--white-ghost);
-      color: rgba(240, 236, 228, 0.5);
+      color: var(--btn-text);
     }
 
     .btn:hover {
       color: var(--white);
-      border-color: rgba(240, 236, 228, 0.15);
-      background: rgba(240, 236, 228, 0.06);
+      border-color: var(--white-faint);
+      background: var(--white-ghost);
     }
 
     .btn.active {
@@ -364,7 +435,7 @@
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: rgba(240, 236, 228, 0.25);
+      color: var(--toc-title-dim);
       margin-bottom: 10px;
     }
 
@@ -390,7 +461,7 @@
 
     .section-card {
       padding: 20px 0;
-      border-bottom: 1px solid rgba(240, 236, 228, 0.06);
+      border-bottom: 1px solid var(--section-line);
     }
 
     .section-card:last-child { border-bottom: none; }
@@ -419,12 +490,12 @@
     .section-card .content {
       font-size: 14px;
       font-weight: 300;
-      color: rgba(240, 236, 228, 0.65);
+      color: var(--content-dim);
     }
     .section-card .content > *:last-child { margin-bottom: 0; padding-bottom: 0; }
     .section-card .content > br:last-child { display: none; }
 
-    .section-card .content strong { color: rgba(240, 236, 228, 0.85); font-weight: 500; }
+    .section-card .content strong { color: var(--content-strong); font-weight: 500; }
     .section-card .content code {
       font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 12px;
@@ -449,7 +520,7 @@
       background: var(--white-ghost);
       border: 1px solid var(--white-faint);
       border-radius: 0;
-      color: rgba(240, 236, 228, 0.8);
+      color: var(--input-text-strong);
       font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 13px;
       line-height: 1.75;
@@ -462,8 +533,8 @@
 
     .editor::-webkit-scrollbar { width: 8px; }
     .editor::-webkit-scrollbar-track { background: transparent; }
-    .editor::-webkit-scrollbar-thumb { background: rgba(254, 111, 94, 0.3); border-radius: 4px; }
-    .editor::-webkit-scrollbar-thumb:hover { background: rgba(254, 111, 94, 0.5); }
+    .editor::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+    .editor::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
     .editor::-webkit-scrollbar-corner { background: transparent; }
 
     /* Animations */
@@ -527,7 +598,7 @@
       transition: border-color 0.2s;
     }
     .mobile-search input:focus { border-color: rgba(254, 111, 94, 0.3); }
-    .mobile-search input::placeholder { color: rgba(240, 236, 228, 0.25); }
+    .mobile-search input::placeholder { color: var(--toc-title-dim); }
 
     @media (max-width: 768px) {
       body { height: auto; overflow: auto; }
@@ -556,11 +627,18 @@
     }
   </style>
 </head>
+<script>(function(){var t=localStorage.getItem('mb-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
 <body>
 
   <div class="wrapper">
   <div class="sidebar">
-    <div class="sidebar-logo"><a href="/">Memory<span>Book</span></a></div>
+    <div class="sidebar-logo">
+      <a href="/">Memory<span>Book</span></a>
+      <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode" onclick="toggleTheme()">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
     <div class="mobile-search">
       <input type="text" id="mobile-search-input" placeholder="Search memories..." autocomplete="off">
     </div>
@@ -574,7 +652,7 @@
       <span class="month-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
     </div>
     {% for f in core %}
-    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}<br><span style="font-family:'Fragment Mono',monospace;font-size:10px;color:rgba(240,236,228,0.18);">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
+    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}<br><span class="sidebar-item-meta">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
     {% endfor %}
     {% endif %}
 
@@ -589,7 +667,7 @@
       <span class="month-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
     </div>
     {% endif %}
-    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}" {% if not loop.first and f.month_key != (daily[0].month_key if daily else '') %}style="display:none;"{% endif %}>{{ f.display }}<br><span style="font-family:'Fragment Mono',monospace;font-size:10px;color:rgba(240,236,228,0.18);">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
+    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}" {% if not loop.first and f.month_key != (daily[0].month_key if daily else '') %}style="display:none;"{% endif %}>{{ f.display }}<br><span class="sidebar-item-meta">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
     {% endfor %}
     {% endif %}
   </div>
@@ -658,6 +736,19 @@
   </div>
 
   <script>
+    // === Theme toggle ===
+    function toggleTheme() {
+      var current = document.documentElement.getAttribute('data-theme');
+      var next = current === 'light' ? 'dark' : 'light';
+      if (next === 'dark') {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.removeItem('mb-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('mb-theme', next);
+      }
+    }
+
     // === Scroll to line from hash ===
     (function() {
       var hash = window.location.hash;
@@ -727,7 +818,7 @@
         var re = new RegExp('(' + escaped.join('|') + ')', 'gi');
         resultsEl.innerHTML = data.results.slice(0, 15).map((r, i) => {
           var match = r.match.replace(re, '<mark>$1</mark>');
-          var sectionTag = r.section_title ? ' <span style="color:rgba(240,236,228,0.2);font-size:10px;">§ ' + r.section_title + '</span>' : '';
+          var sectionTag = r.section_title ? ' <span class="sidebar-item-meta">§ ' + r.section_title + '</span>' : '';
           return '<a class="search-result" href="/view/' + r.file + '#line-' + r.line + '" style="animation-delay:' + (i * 0.03) + 's">'
             + '<div class="search-result-file">' + r.file_display + ' <span class="search-result-line">line ' + r.line + '</span>' + sectionTag + '</div>'
             + '<div class="search-result-match">' + match + '</div>'

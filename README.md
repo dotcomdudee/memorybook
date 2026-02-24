@@ -18,6 +18,7 @@ OpenClaw agents store memories as markdown files — daily notes in `memory/YYYY
 - 📖 **Section View** — Each `##` header rendered as its own card with table of contents
 - ✏️ **Live Editing** — Auto-saves as you type (1s debounce)
 - ⌨️ **Keyboard Shortcuts** — `Ctrl+E` toggle edit, `Ctrl+S` force save, `/` to focus search
+- 🌗 **Light/Dark Mode** — Toggle between dark chocolate and warm cream themes. Persisted to localStorage, no flash on load
 - 🎨 **Beautiful UI** — Dark glass aesthetic with Bricolage Grotesque headings
 
 ## Install
@@ -145,6 +146,12 @@ Click any file to view it — markdown is parsed by `##` headers into visual sec
 MIT — do whatever you want with it.
 
 ## Changelog
+
+**v1.2** — 2026-02-24
+- Light/dark mode toggle next to sidebar logo (moon/sun icon)
+- Light theme: warm cream background with dark chocolate text, reversed from default
+- Theme persisted to localStorage, applied before render (no flash)
+- All hardcoded color values refactored to CSS custom properties
 
 **v1.1** — 2026-02-24
 - Sidebar grouped by month (collapsible with persistent state)
