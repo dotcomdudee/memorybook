@@ -30,7 +30,7 @@ cd memorybook
 sudo bash install.sh
 ```
 
-One command:
+### One liner:
 
 ```bash
 curl -fsSL https://memorybook.md/install.sh | sudo bash
