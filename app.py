@@ -66,19 +66,56 @@ app.jinja_env.filters['render_markdown'] = render_markdown
 
 
 # ─── Helpers ──────────────────────────────────────────────────
+def get_allowed_paths():
+    """Return list of allowed file paths for safety."""
+    allowed = []
+    for name in CORE_FILES:
+        f = WORKSPACE / name
+        if f.exists():
+            allowed.append(str(f))
+    if MEMORY_DIR.exists():
+        allowed.extend(str(f) for f in MEMORY_DIR.glob("*.md"))
+    return allowed
+
+
+MONTH_NAMES = {
+    1: "January", 2: "February", 3: "March", 4: "April",
+    5: "May", 6: "June", 7: "July", 8: "August",
+    9: "September", 10: "October", 11: "November", 12: "December",
+}
+
+
 def get_all_files():
-    """Get all memory files, sorted newest first."""
+    """Get all memory files, sorted newest first, with month grouping for daily files."""
     files = []
+    now = datetime.now()
+    current_year = now.year
+    current_month = now.month
 
     # Daily memory files from memory/ directory
     if MEMORY_DIR.exists():
         for f in sorted(MEMORY_DIR.glob("*.md"), reverse=True):
             stat = f.stat()
+            # Parse year-month from filename like 2026-02-24.md
+            match = re.match(r'(\d{4})-(\d{2})-(\d{2})', f.stem)
+            if match:
+                year, month = int(match.group(1)), int(match.group(2))
+                month_key = f"{year}-{month:02d}"
+                if year == current_year and month == current_month:
+                    month_label = MONTH_NAMES[month]
+                else:
+                    month_label = f"{MONTH_NAMES[month]} {year}"
+            else:
+                month_key = "other"
+                month_label = "Other"
+
             files.append({
                 "path": str(f),
                 "name": f.name,
                 "display": f.stem,
                 "type": "daily",
+                "month_key": month_key,
+                "month_label": month_label,
                 "size": stat.st_size,
                 "modified": datetime.fromtimestamp(stat.st_mtime),
                 "lines": len(f.read_text(errors='replace').splitlines()),
@@ -102,30 +139,20 @@ def get_all_files():
     return files
 
 
-def get_allowed_paths():
-    """Return list of allowed file paths for safety."""
-    allowed = []
-    for name in CORE_FILES:
-        f = WORKSPACE / name
-        if f.exists():
-            allowed.append(str(f))
-    if MEMORY_DIR.exists():
-        allowed.extend(str(f) for f in MEMORY_DIR.glob("*.md"))
-    return allowed
-
-
 def parse_sections(content):
     """Parse markdown into sections by ## headers."""
     sections = []
-    current = {"title": "Preamble", "content": "", "line": 1}
+    current = {"title": "Preamble", "content": "", "line": 1, "end_line": 1}
 
     for i, line in enumerate(content.splitlines(), 1):
         if line.startswith("## "):
+            current["end_line"] = i - 1
             if current["content"].strip():
                 sections.append(current)
-            current = {"title": line[3:].strip(), "content": "", "line": i}
+            current = {"title": line[3:].strip(), "content": "", "line": i, "end_line": i}
         else:
             current["content"] += line + "\n"
+            current["end_line"] = i
 
     if current["content"].strip():
         sections.append(current)
@@ -134,28 +161,63 @@ def parse_sections(content):
 
 
 def search_files(query):
-    """Search across all memory files."""
-    results = []
-    query_lower = query.lower()
+    """Search across all memory files. Uses word-level AND matching:
+    1. Line-level: all query words appear in a single line (ranked first)
+    2. Section-level: all query words appear somewhere in the same ## section
+    """
+    line_results = []
+    section_results = []
+    words = [w.lower() for w in query.strip().split() if w]
+    if not words:
+        return []
 
     for f in get_all_files():
         content = Path(f["path"]).read_text(errors='replace')
         lines = content.splitlines()
+        sections = parse_sections(content)
+
+        # Track which sections already matched at line-level
+        line_matched_sections = set()
+
+        # 1. Line-level AND matching
         for i, line in enumerate(lines):
-            if query_lower in line.lower():
-                start = max(0, i - 2)
-                end = min(len(lines), i + 3)
-                context = "\n".join(lines[start:end])
-                results.append({
+            line_lower = line.lower()
+            if all(w in line_lower for w in words):
+                line_results.append({
                     "file": f["name"],
                     "file_display": f["display"],
                     "path": f["path"],
                     "line": i + 1,
                     "match": line.strip(),
-                    "context": context,
+                })
+                for s in sections:
+                    if s["line"] <= i + 1 <= s["end_line"]:
+                        line_matched_sections.add((f["name"], s["line"]))
+                        break
+
+        # 2. Section-level AND matching
+        for s in sections:
+            if (f["name"], s["line"]) in line_matched_sections:
+                continue
+            section_text = (s["title"] + "\n" + s["content"]).lower()
+            if all(w in section_text for w in words):
+                best_line = s["line"]
+                best_match = s["title"]
+                for i in range(s["line"] - 1, min(s["end_line"], len(lines))):
+                    if any(w in lines[i].lower() for w in words):
+                        best_line = i + 1
+                        best_match = lines[i].strip()
+                        break
+                section_results.append({
+                    "file": f["name"],
+                    "file_display": f["display"],
+                    "path": f["path"],
+                    "line": best_line,
+                    "match": best_match,
+                    "section_title": s["title"],
                 })
 
-    return results
+    return line_results + section_results
 
 
 # ─── Routes ───────────────────────────────────────────────────

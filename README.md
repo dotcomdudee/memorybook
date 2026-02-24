@@ -4,7 +4,7 @@ A beautiful web interface for browsing, searching, and editing your [OpenClaw](h
 
 ![Memory Book](https://img.shields.io/badge/OpenClaw-MemoryBook-8B5CF6?style=flat-square) ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-![MemoryBook](https://zight.io/s/48043006571632389669000361810930.png?x=C2EXMT3)
+![MemoryBook](https://zight.io/s/75977413226884678564763331400625450548827539.png?x=ESCKBFD)
 
 ## What is this?
 
@@ -12,10 +12,11 @@ OpenClaw agents store memories as markdown files — daily notes in `memory/YYYY
 
 ### Features
 
-- 🔍 **Live Search** — Instant search across all files with highlighted matches
-- 📖 **Section View** — Each `##` header rendered as its own glass card
+- 🔍 **Smart Search** — Word-level AND matching across all files. Line-level matches ranked first, section-level matches catch words spread across nearby lines. Each word highlighted individually.
+- 📍 **Jump to Result** — Click a search result to navigate directly to the matching section with a highlighted glow that fades after 3 seconds.
+- 📁 **Monthly Sidebar** — Daily files grouped by month (current month expanded, older months collapsed). Core files in their own collapsible section. State persisted to localStorage.
+- 📖 **Section View** — Each `##` header rendered as its own card with table of contents
 - ✏️ **Live Editing** — Auto-saves as you type (1s debounce)
-- 📁 **Sidebar Navigation** — Quick jump between files with file size & line counts
 - ⌨️ **Keyboard Shortcuts** — `Ctrl+E` toggle edit, `Ctrl+S` force save, `/` to focus search
 - 🎨 **Beautiful UI** — Dark glass aesthetic with Bricolage Grotesque headings
 
@@ -82,7 +83,7 @@ memorybook/
 ├── README.md
 ├── LICENSE
 ├── static/
-│   └── brain.png       # Favicon
+│   └── favicon.svg       # Favicon
 └── templates/
     └── view.html       # Combined home + viewer template
 ```
@@ -96,13 +97,31 @@ MemoryBook reads markdown files from your OpenClaw workspace:
 | `MEMORY.md` | Core | Agent's long-term curated memory |
 | `memory/YYYY-MM-DD.md` | Daily | Daily notes and logs |
 
-The homepage shows a sidebar of all files with a central search bar. Click any file to view it — markdown is parsed by `##` headers into visual section cards. The editor writes directly to the files — your agent picks up changes on its next read.
+### Sidebar
+
+Files are organized into collapsible sections with SVG chevrons:
+- **Core** — Long-term memory files (MEMORY.md and any extras configured in `CORE_FILES`)
+- **Monthly groups** — Daily files grouped by month. Current month shows just the name (e.g. "February"), older months include the year (e.g. "January 2026"). Collapse state persists to localStorage.
+
+### Search
+
+Uses **word-level AND matching** with two tiers:
+1. **Line-level** (ranked first) — all query words appear in a single line
+2. **Section-level** — all query words appear somewhere within the same `##` section
+
+This means searching "server install" will find sections where both words appear, even if they're on different lines. Section-level matches display a `§ Section Title` tag for context.
+
+Click any result to jump directly to the matching section — it scrolls into view with an accent highlight that fades after 3 seconds.
+
+### Editor
+
+Click any file to view it — markdown is parsed by `##` headers into visual section cards. Toggle the editor with the Edit button or `Ctrl+E`. Auto-saves after 1 second of inactivity. Your agent picks up changes on its next read.
 
 ## Security
 
 - **LAN only by default** — binds to `0.0.0.0` but intended for local network use
 - **No authentication** — add a reverse proxy with auth if exposing beyond LAN
-- **Write safety** — only allows editing files in the memory directory and `MEMORY.md`
+- **Write safety** — only allows editing files in the memory directory and configured core files
 - **No external dependencies** beyond Flask
 
 ## Requirements
@@ -115,6 +134,19 @@ The homepage shows a sidebar of all files with a central search bar. Click any f
 ## License
 
 MIT — do whatever you want with it.
+
+## Changelog
+
+**v1.1** — 2026-02-24
+- Sidebar grouped by month (collapsible with persistent state)
+- Smart search: word-level AND matching with line + section tiers
+- Click search results to jump directly to matching section with highlight
+- Per-word highlighting in search results
+
+**v1.0** — 2026-02-18
+- Initial release
+- Dark glass UI with section cards, live search, inline editor
+- Keyboard shortcuts, mobile responsive, auto-save
 
 ---
 

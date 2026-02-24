@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% if display %}{{ display }} — {% endif %}Memory Book</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/svg+xml" href="/static/PoetrySVG.svg">
-  <link rel="apple-touch-icon" href="/static/PoetrySVG.svg">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="apple-touch-icon" href="/static/favicon.svg">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fragment+Mono&display=swap');
 
@@ -94,6 +94,16 @@
       transition: all 0.2s;
       border-left: 2px solid transparent;
     }
+
+    .sidebar-month {
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+    }
+    .sidebar-month:hover { color: rgba(240, 236, 228, 0.4); }
+    .month-chevron { float: right; display: inline-flex; align-items: center; }
+    .month-chevron svg { transition: transform 0.2s ease; }
+    .sidebar-month.collapsed .month-chevron svg { transform: rotate(-90deg); }
 
     .sidebar-item:hover {
       color: rgba(240, 236, 228, 0.8);
@@ -385,6 +395,18 @@
 
     .section-card:last-child { border-bottom: none; }
 
+    .section-card.highlight {
+      background: rgba(254, 111, 94, 0.06);
+      border-left: 3px solid var(--accent);
+      padding-left: 17px;
+      border-radius: 4px;
+      transition: background 2s ease, border-color 2s ease;
+    }
+    .section-card.highlight-fade {
+      background: transparent;
+      border-left-color: transparent;
+    }
+
     .section-card h2 {
       font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 22px;
@@ -547,16 +569,27 @@
     {% set daily = files | selectattr("type", "equalto", "daily") | list %}
 
     {% if core %}
-    <div class="sidebar-section">Core</div>
+    <div class="sidebar-section sidebar-month" data-month="core" onclick="this.classList.toggle('collapsed'); var c=this.classList.contains('collapsed'); var s=this.nextElementSibling; while(s && s.classList.contains('sidebar-item')){s.style.display=c?'none':''; s=s.nextElementSibling;} var st=JSON.parse(localStorage.getItem('mb-months')||'{}'); st[this.dataset.month]=c; localStorage.setItem('mb-months',JSON.stringify(st));">
+      <span>Core</span>
+      <span class="month-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+    </div>
     {% for f in core %}
     <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}<br><span style="font-family:'Fragment Mono',monospace;font-size:10px;color:rgba(240,236,228,0.18);">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
     {% endfor %}
     {% endif %}
 
     {% if daily %}
-    <div class="sidebar-section">Daily</div>
+    {% set ns = namespace(current_month='') %}
     {% for f in daily %}
-    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}">{{ f.display }}<br><span style="font-family:'Fragment Mono',monospace;font-size:10px;color:rgba(240,236,228,0.18);">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
+    {% if f.month_key != ns.current_month %}
+    {% set ns.current_month = f.month_key %}
+    {% set is_first_month = loop.first %}
+    <div class="sidebar-section sidebar-month{% if not is_first_month %} collapsed{% endif %}" data-month="{{ f.month_key }}" onclick="this.classList.toggle('collapsed'); var c=this.classList.contains('collapsed'); var s=this.nextElementSibling; while(s && s.classList.contains('sidebar-item')){s.style.display=c?'none':''; s=s.nextElementSibling;} var st=JSON.parse(localStorage.getItem('mb-months')||'{}'); st[this.dataset.month]=c; localStorage.setItem('mb-months',JSON.stringify(st));">
+      <span>{{ f.month_label }}</span>
+      <span class="month-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+    </div>
+    {% endif %}
+    <a class="sidebar-item {{ 'active' if filename and f.name == filename }}" href="/view/{{ f.name }}" {% if not loop.first and f.month_key != (daily[0].month_key if daily else '') %}style="display:none;"{% endif %}>{{ f.display }}<br><span style="font-family:'Fragment Mono',monospace;font-size:10px;color:rgba(240,236,228,0.18);">{{ (f.size / 1024) | round(1) }}kb · {{ f.lines }} lines</span></a>
     {% endfor %}
     {% endif %}
   </div>
@@ -606,7 +639,7 @@
 
       <div class="sections">
         {% for s in sections %}
-        <div class="section-card" id="section-{{ loop.index }}">
+        <div class="section-card" id="section-{{ loop.index }}" data-start-line="{{ s.line }}" data-end-line="{{ s.end_line }}">
           {% if s.title != "Preamble" %}
           <h2>{{ s.title }}</h2>
           {% endif %}
@@ -625,6 +658,53 @@
   </div>
 
   <script>
+    // === Scroll to line from hash ===
+    (function() {
+      var hash = window.location.hash;
+      var m = hash && hash.match(/^#line-(\d+)/);
+      if (!m) return;
+      var targetLine = parseInt(m[1]);
+      var sections = document.querySelectorAll('.section-card[data-start-line]');
+      var target = null;
+      sections.forEach(function(sec) {
+        var start = parseInt(sec.dataset.startLine);
+        var end = parseInt(sec.dataset.endLine);
+        if (targetLine >= start && targetLine <= end) target = sec;
+      });
+      if (target) {
+        setTimeout(function() {
+          target.scrollIntoView({ block: 'center' });
+          target.classList.add('highlight');
+          setTimeout(function() { target.classList.add('highlight-fade'); }, 3000);
+          setTimeout(function() { target.classList.remove('highlight', 'highlight-fade'); }, 5000);
+        }, 200);
+      }
+    })();
+
+    // === Sidebar month collapse ===
+    (function() {
+      var stored = JSON.parse(localStorage.getItem('mb-months') || '{}');
+      document.querySelectorAll('.sidebar-month').forEach(function(header) {
+        var key = header.dataset.month;
+        var shouldCollapse;
+        if (key in stored) {
+          shouldCollapse = stored[key];
+        } else {
+          shouldCollapse = header.classList.contains('collapsed');
+        }
+        if (shouldCollapse) {
+          header.classList.add('collapsed');
+        } else {
+          header.classList.remove('collapsed');
+        }
+        var item = header.nextElementSibling;
+        while (item && item.classList.contains('sidebar-item')) {
+          item.style.display = shouldCollapse ? 'none' : '';
+          item = item.nextElementSibling;
+        }
+      });
+    })();
+
     // === Search ===
     let searchTimeout;
 
@@ -642,11 +722,14 @@
           if (isInline) resultsEl.classList.add('open');
           return;
         }
-        const q = query.toLowerCase();
+        var words = query.trim().split(/\s+/).filter(Boolean);
+        var escaped = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        var re = new RegExp('(' + escaped.join('|') + ')', 'gi');
         resultsEl.innerHTML = data.results.slice(0, 15).map((r, i) => {
-          const match = r.match.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>');
+          var match = r.match.replace(re, '<mark>$1</mark>');
+          var sectionTag = r.section_title ? ' <span style="color:rgba(240,236,228,0.2);font-size:10px;">§ ' + r.section_title + '</span>' : '';
           return '<a class="search-result" href="/view/' + r.file + '#line-' + r.line + '" style="animation-delay:' + (i * 0.03) + 's">'
-            + '<div class="search-result-file">' + r.file_display + ' <span class="search-result-line">line ' + r.line + '</span></div>'
+            + '<div class="search-result-file">' + r.file_display + ' <span class="search-result-line">line ' + r.line + '</span>' + sectionTag + '</div>'
             + '<div class="search-result-match">' + match + '</div>'
             + '</a>';
         }).join('');
